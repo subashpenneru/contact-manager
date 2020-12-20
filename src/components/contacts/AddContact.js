@@ -40,6 +40,8 @@ export default class AddContact extends Component {
 
     dispatch({ type: 'ADD_CONTACT', payload: { name, email, phone } });
     this.setState({ name: '', email: '', phone: '', errors: {} });
+
+    this.props.history.push('/');
   };
 
   render() {
