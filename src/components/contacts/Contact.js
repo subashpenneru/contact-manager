@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Consumer } from '../../context';
+import axios from '../../api';
 
 export default class Contact extends Component {
   constructor() {
@@ -14,7 +16,15 @@ export default class Contact extends Component {
     this.setState({ showContactInfo: !this.state.showContactInfo });
   };
 
-  deleteClickHandler = () => {};
+  deleteClickHandler = async (dispatch, id) => {
+    try {
+      await axios.delete(`/users/${id}`);
+
+      dispatch({ type: 'DELETE_CONTACT', payload: id });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   render() {
     const { showContactInfo } = this.state;
@@ -40,9 +50,17 @@ export default class Contact extends Component {
                 <i
                   className='fas fa-times'
                   style={{ cursor: 'pointer', float: 'right', color: 'red' }}
-                  onClick={() =>
-                    dispatch({ type: 'DELETE_CONTACT', payload: id })
-                  }></i>
+                  onClick={() => this.deleteClickHandler(dispatch, id)}></i>
+                <Link to={`contact/edit/${id}`}>
+                  <i
+                    className='fas fa-pencil-alt'
+                    style={{
+                      cursor: 'pointer',
+                      float: 'right',
+                      color: 'goldenrod',
+                      marginRight: '1rem',
+                    }}></i>
+                </Link>
               </h4>
               {showContactInfo && (
                 <ul className='list-group'>

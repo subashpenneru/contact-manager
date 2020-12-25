@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { v4 as uuid } from 'uuid';
+
+import axios from './api';
 
 const Context = React.createContext();
 
@@ -13,12 +14,18 @@ const reducer = (state, action) => {
     case 'ADD_CONTACT':
       const contact = {
         ...action.payload,
-        id: uuid(),
       };
 
       return {
         ...state,
         contacts: [contact, ...state.contacts],
+      };
+    case 'UPDATE_CONTACT':
+      const { id } = action.payload;
+
+      return {
+        ...state,
+        contacts: state.contacts.map((c) => (c.id === id ? action.payload : c)),
       };
     default:
       return state;
@@ -27,28 +34,15 @@ const reducer = (state, action) => {
 
 export class Provider extends Component {
   state = {
-    contacts: [
-      {
-        id: uuid(),
-        name: 'Subash Penneru',
-        email: 'subashpenneru@gmail.com',
-        phone: '709-569-2523',
-      },
-      {
-        id: uuid(),
-        name: 'John Doe',
-        email: 'john@gmail.com',
-        phone: '555-555-5555',
-      },
-      {
-        id: uuid(),
-        name: 'Max Millian',
-        email: 'max@gmail.com',
-        phone: '970-470-9509',
-      },
-    ],
+    contacts: [],
     dispatch: (action) => this.setState((state) => reducer(state, action)),
   };
+
+  async componentDidMount() {
+    const { data } = await axios.get('/users');
+
+    this.setState({ contacts: data });
+  }
 
   render() {
     return (

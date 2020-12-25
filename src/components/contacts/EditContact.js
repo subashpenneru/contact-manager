@@ -4,13 +4,31 @@ import TextInputGroup from '../layout/TextInputGroup';
 import { Consumer } from '../../context';
 import axios from '../../api';
 
-export default class AddContact extends Component {
+export default class EditContact extends Component {
   state = {
     name: '',
     email: '',
     phone: '',
     errors: {},
   };
+
+  async componentDidMount() {
+    const {
+      params: { id },
+    } = this.props.match;
+
+    if (id) {
+      try {
+        const {
+          data: { name, email, phone },
+        } = await axios.get(`/users/${id}`);
+
+        this.setState({ name, email, phone });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
 
   onInputChangeHandler = (e) => {
     this.setState({
@@ -22,6 +40,9 @@ export default class AddContact extends Component {
     e.preventDefault();
 
     const { name, email, phone } = this.state;
+    const {
+      params: { id },
+    } = this.props.match;
 
     // Check for errors
     if (name === '') {
@@ -39,13 +60,13 @@ export default class AddContact extends Component {
       return;
     }
 
-    const { data } = await axios.post(
-      '/users',
+    const { data } = await axios.put(
+      `/users/${id}`,
       { name, email, phone },
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    dispatch({ type: 'ADD_CONTACT', payload: data });
+    dispatch({ type: 'UPDATE_CONTACT', payload: data });
     this.setState({ name: '', email: '', phone: '', errors: {} });
 
     this.props.history.push('/');
@@ -61,7 +82,7 @@ export default class AddContact extends Component {
 
           return (
             <div className='card mb-3'>
-              <div className='card-header'>Add Contact</div>
+              <div className='card-header'>Edit Contact</div>
               <div className='card-body'>
                 <form onSubmit={(e) => this.onSubmitHandler(e, dispatch)}>
                   <TextInputGroup
@@ -91,7 +112,7 @@ export default class AddContact extends Component {
                   />
                   <input
                     type='submit'
-                    value='Add Contact'
+                    value='Edit Contact'
                     className='btn btn-light btn-block'
                   />
                 </form>
