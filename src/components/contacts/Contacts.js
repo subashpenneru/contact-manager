@@ -1,45 +1,28 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { getContacts } from '../../actions';
 
 import Contact from './Contact';
 
-class Contacts extends Component {
-  state = {
-    contacts: [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@gmail.com',
-        phone: '555-555-5555',
-      },
-      {
-        id: 2,
-        name: 'Karen Williams',
-        email: 'karen@gmail.com',
-        phone: '444-444-4444',
-      },
-      {
-        id: 3,
-        name: 'Henry Johnson',
-        email: 'henry@gmail.com',
-        phone: '333-333-333',
-      },
-    ],
-  };
+const Contacts = () => {
+  const { contacts } = useSelector((state) => state.contact);
+  const dispatch = useDispatch();
 
-  render() {
-    const { contacts } = this.state;
+  useEffect(() => {
+    dispatch(getContacts());
+  }, [dispatch]);
 
-    return (
-      <React.Fragment>
-        <h1 className='display-4 mb-2'>
-          <span className='text-danger'>Contact</span> List
-        </h1>
-        {contacts.map((contact) => (
-          <Contact key={contact.id} contact={contact} />
-        ))}
-      </React.Fragment>
-    );
-  }
-}
+  return (
+    <React.Fragment>
+      <h1 className='display-4 mb-2'>
+        <span className='text-danger'>Contact</span> List
+      </h1>
+      {contacts.map((contact) => (
+        <Contact key={contact.id} contact={contact} />
+      ))}
+    </React.Fragment>
+  );
+};
 
 export default Contacts;

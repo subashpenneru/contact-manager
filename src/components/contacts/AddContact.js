@@ -1,92 +1,97 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { v4 as uid } from 'uuid';
 
 import TextInputGroup from '../layout/TextInputGroup';
+import { addContact } from '../../actions';
 
-export default class AddContact extends Component {
-  state = {
-    name: '',
-    email: '',
-    phone: '',
-    errors: {},
-  };
+const AddContact = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errors, setErrors] = useState({});
+  const { push } = useHistory();
+  const dispatch = useDispatch();
 
-  onSubmit = (e) => {
+  const onSubmitHandler = (e) => {
     e.preventDefault();
-
-    const { name, email, phone } = this.state;
 
     // Check For Errors
     if (name === '') {
-      this.setState({ errors: { name: 'Name is required' } });
+      setErrors({ name: 'Name is required' });
       return;
     }
 
     if (email === '') {
-      this.setState({ errors: { email: 'Email is required' } });
+      setErrors({ email: 'Email is required' });
       return;
     }
 
     if (phone === '') {
-      this.setState({ errors: { phone: 'Phone is required' } });
+      setErrors({ phone: 'Phone is required' });
       return;
     }
 
-    //// SUBMIT CONTACT ////
+    dispatch(
+      addContact({
+        id: uid(),
+        name,
+        email,
+        phone,
+      })
+    );
 
     // Clear State
-    this.setState({
-      name: '',
-      email: '',
-      phone: '',
-      errors: {},
-    });
+    setName('');
+    setEmail('');
+    setPhone('');
+    setErrors({});
 
-    this.props.history.push('/');
+    push('/');
   };
 
-  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
-
-  render() {
-    const { name, email, phone, errors } = this.state;
-
-    return (
-      <div className='card mb-3'>
-        <div className='card-header'>Add Contact</div>
-        <div className='card-body'>
-          <form onSubmit={this.onSubmit}>
-            <TextInputGroup
-              label='Name'
-              name='name'
-              placeholder='Enter Name'
-              value={name}
-              onChange={this.onChange}
-              error={errors.name}
-            />
-            <TextInputGroup
-              label='Email'
-              name='email'
-              type='email'
-              placeholder='Enter Email'
-              value={email}
-              onChange={this.onChange}
-              error={errors.email}
-            />
-            <TextInputGroup
-              label='Phone'
-              name='phone'
-              placeholder='Enter Phone'
-              value={phone}
-              onChange={this.onChange}
-              error={errors.phone}
-            />
-            <input
-              type='submit'
-              value='Add Contact'
-              className='btn btn-light btn-block'
-            />
-          </form>
-        </div>
+  return (
+    <div className='card mb-3'>
+      <div className='card-header'>Add Contact</div>
+      <div className='card-body'>
+        <form onSubmit={onSubmitHandler}>
+          <TextInputGroup
+            label='Name'
+            name='name'
+            placeholder='Enter Name'
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+            error={errors.name}
+          />
+          <TextInputGroup
+            label='Email'
+            name='email'
+            type='email'
+            placeholder='Enter Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email}
+          />
+          <TextInputGroup
+            label='Phone'
+            name='phone'
+            placeholder='Enter Phone'
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            error={errors.phone}
+          />
+          <input
+            type='submit'
+            value='Add Contact'
+            className='btn btn-light btn-block'
+          />
+        </form>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default AddContact;
