@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { v4 as uid } from 'uuid';
 
 import TextInputGroup from '../layout/TextInputGroup';
 import { addContact } from '../../actions';
@@ -35,7 +34,6 @@ const AddContact = () => {
 
     dispatch(
       addContact({
-        id: uid(),
         name,
         email,
         phone,

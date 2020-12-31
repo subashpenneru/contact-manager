@@ -1,93 +1,103 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useParams } from 'react-router-dom';
+
 import TextInputGroup from '../layout/TextInputGroup';
+import { getContact, updateContact } from '../../actions';
 
-export default class EditContact extends Component {
-  state = {
-    name: '',
-    email: '',
-    phone: '',
-    errors: {},
-  };
+const EditContact = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errors, setErrors] = useState({});
+  const { push } = useHistory();
+  const { id: userId } = useParams();
+  const dispatch = useDispatch();
+  const { editContact } = useSelector((state) => state.contact);
 
-  onSubmit = (e) => {
+  useEffect(() => {
+    dispatch(getContact(userId));
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (editContact) {
+      setName(editContact.name);
+      setEmail(editContact.email);
+      setPhone(editContact.phone);
+    }
+  }, [editContact]);
+
+  const onSubmitHandler = (e) => {
     e.preventDefault();
-
-    const { name, email, phone } = this.state;
 
     // Check For Errors
     if (name === '') {
-      this.setState({ errors: { name: 'Name is required' } });
+      setErrors({ name: 'Name is required' });
       return;
     }
 
     if (email === '') {
-      this.setState({ errors: { email: 'Email is required' } });
+      setErrors({ email: 'Email is required' });
       return;
     }
 
     if (phone === '') {
-      this.setState({ errors: { phone: 'Phone is required' } });
+      setErrors({ phone: 'Phone is required' });
       return;
     }
 
-    const { id } = this.props.match.params;
-
-    //// UPDATE CONTACT ////
+    dispatch(updateContact({ id: userId, name, email, phone }));
 
     // Clear State
-    this.setState({
-      name: '',
-      email: '',
-      phone: '',
-      errors: {},
-    });
+    setName('');
+    setEmail('');
+    setPhone('');
+    setErrors({});
 
-    this.props.history.push('/');
+    push('/');
   };
 
-  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
-
-  render() {
-    const { name, email, phone, errors } = this.state;
-
-    return (
-      <div className='card mb-3'>
-        <div className='card-header'>Edit Contact</div>
-        <div className='card-body'>
-          <form onSubmit={this.onSubmit}>
-            <TextInputGroup
-              label='Name'
-              name='name'
-              placeholder='Enter Name'
-              value={name}
-              onChange={this.onChange}
-              error={errors.name}
-            />
-            <TextInputGroup
-              label='Email'
-              name='email'
-              type='email'
-              placeholder='Enter Email'
-              value={email}
-              onChange={this.onChange}
-              error={errors.email}
-            />
-            <TextInputGroup
-              label='Phone'
-              name='phone'
-              placeholder='Enter Phone'
-              value={phone}
-              onChange={this.onChange}
-              error={errors.phone}
-            />
-            <input
-              type='submit'
-              value='Update Contact'
-              className='btn btn-light btn-block'
-            />
-          </form>
-        </div>
+  return (
+    <div className='card mb-3'>
+      <div className='card-header'>Edit Contact</div>
+      <div className='card-body'>
+        <form onSubmit={onSubmitHandler}>
+          <TextInputGroup
+            label='Name'
+            name='name'
+            placeholder='Enter Name'
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+            error={errors.name}
+          />
+          <TextInputGroup
+            label='Email'
+            name='email'
+            type='email'
+            placeholder='Enter Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email}
+          />
+          <TextInputGroup
+            label='Phone'
+            name='phone'
+            placeholder='Enter Phone'
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            error={errors.phone}
+          />
+          <input
+            type='submit'
+            value='Update Contact'
+            className='btn btn-light btn-block'
+          />
+        </form>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default EditContact;
